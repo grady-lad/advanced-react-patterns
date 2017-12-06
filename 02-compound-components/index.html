@@ -79,51 +79,52 @@ by Mauricio Allende (https://mallendeo.com/)
 <div id="⚛️"></div>
 
 <script type="text/babel">
-function ToggleOn({on, children}) {
-  return on ? children : null
+function ToggleOn({ on, children }) {
+  return on ? children : null;
 }
-function ToggleOff({on, children}) {
-  return on ? null : children
+function ToggleOff({ on, children }) {
+  return on ? null : children;
 }
-function ToggleButton({on, toggle, ...props}) {
-  return (
-    <Switch on={on} onClick={toggle} {...props} />
-  )
+function ToggleButton({ on, toggle, ...props }) {
+  return <Switch on={on} onClick={toggle} {...props} />;
 }
+/**
+ * Compound Components.
+ * We have one component here at the top level, then that component
+ * has some children components, and they share some implicit state.
+ * That implicit state is the on state. They can also share functionality like the button does.
+ **/
 class Toggle extends React.Component {
-  static On = ToggleOn
-  static Off = ToggleOff
-  static Button = ToggleButton
-  static defaultProps = {onToggle: () => {}}
-  state = {on: false}
+  static On = ToggleOn; // this allows users of the toggle to access the components via <Toggle.On>
+  static Off = ToggleOff;
+  static Button = ToggleButton;
+  static defaultProps = { onToggle: () => {} };
+  state = { on: false };
   toggle = () =>
     this.setState(
-      ({on}) => ({on: !on}),
-      () => this.props.onToggle(this.state.on),
-    )
+      ({ on }) => ({ on: !on }),
+      () => this.props.onToggle(this.state.on)
+    );
   render() {
-    const children = React.Children.map(
-      this.props.children,
-      child =>
-        React.cloneElement(child, {
-          on: this.state.on,
-          toggle: this.toggle,
-        }),
-    )
-    return <div>{children}</div>
+    // Passing the implicit props to the children
+    const children = React.Children.map(this.props.children, child =>
+      React.cloneElement(child, {
+        on: this.state.on,
+        toggle: this.toggle
+      })
+    );
+    return <div>{children}</div>;
   }
 }
 
 function App() {
   return (
-    <Toggle
-      onToggle={on => console.log('toggle', on)}
-    >
-      <Toggle.On>The button is on</Toggle.On>
+    <Toggle onToggle={on => console.log("toggle", on)}>
+      <Toggle.On>The button is on</Toggle.On> // props are hidden from the user.
       <Toggle.Off>The button is off</Toggle.Off>
       <Toggle.Button />
     </Toggle>
-  )
+  );
 }
 
 /*
@@ -135,37 +136,34 @@ function App() {
  *
  */
 
-function Switch({on, className = '', ...props}) {
+function Switch({ on, className = "", ...props }) {
   return (
     <div className="toggle">
-      <input
-        className="toggle-input"
-        type="checkbox"
-      />
+      <input className="toggle-input" type="checkbox" />
       <button
-        className={`${className} toggle-btn ${on
-          ? 'toggle-btn-on'
-          : 'toggle-btn-off'}`}
+        className={`${className} toggle-btn ${
+          on ? "toggle-btn-on" : "toggle-btn-off"
+        }`}
         aria-expanded={on}
         {...props}
       />
     </div>
-  )
+  );
 }
 
 ReactDOM.render(
   <div
     style={{
       marginTop: 40,
-      display: 'flex',
-      justifyContent: 'center',
-      flexDirection: 'column',
-      textAlign: 'center',
+      display: "flex",
+      justifyContent: "center",
+      flexDirection: "column",
+      textAlign: "center"
     }}
   >
     <App />
   </div>,
-  document.getElementById('⚛️'),
-)
+  document.getElementById("⚛️")
+);
 </script>
 </body>
